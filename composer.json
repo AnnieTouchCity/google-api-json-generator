@@ -1,0 +1,14 @@
+{
+    "name": "KSD/google-api-json-generator",
+    "type": "library",
+    "description": "help to generate google api result to json",
+    "keywords": ["google-api","json"],    
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Annie Liang",
+            "email": "annie.liang@touchcity.tw",            
+            "role": "Developer"
+        }
+    ],
+}
