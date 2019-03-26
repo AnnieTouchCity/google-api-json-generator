@@ -1,14 +1,35 @@
 {
-    "name": "ksd/google-api-json-generator",
-    "type": "library",
-    "description": "help to generate google api result to json",
-    "keywords": ["google-api","json"],    
-    "license": "mit",
-    "authors": [
-        {
-            "name": "annie liang",
-            "email": "annie.liang@touchcity.tw",            
-            "role": "developer"
-        }
-    ]
+  "name": "ksd/google-api-json-generator",
+  "type": "library",
+  "description": "help to generate google api result to json",
+  "keywords": [
+    "google-api",
+    "json"
+  ],
+  "license": "mit",
+  "authors": [
+    {
+      "name": "annie liang",
+      "email": "annie.liang@touchcity.tw",
+      "role": "developer"
+    }
+  ],
+  "require": {
+    "php": ">=5.5.0",
+    "illuminate/database": "^5.8",
+    "guzzlehttp/guzzle": "^6.3",
+    "illuminate/support": "^5.8",
+    "larapack/dd": "^1.1",
+    "ext-mysqli": "*",
+    "ext-json": "*"
+  },
+  "autoload": {
+    "psr-4": {
+      "Controllers\\": "src/app/controllers/",
+      "Models\\": "src/app/models/",
+      "Map\\": "src/app/map/"
+    }
+  },
+  "require-dev": {
+  }
 }
