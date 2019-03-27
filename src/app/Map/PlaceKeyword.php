@@ -27,7 +27,7 @@ class PlaceKeyword extends BasePlaceSearch
         foreach ($keywords as $keyword => $type) {
             $this->setQuery([
                 'location' => $this->location,
-                'radius' => 100000,
+                'radius' => 70000,
                 'language' => 'zh-tw',
                 "query" => $keyword,
             ]);
@@ -47,15 +47,20 @@ class PlaceKeyword extends BasePlaceSearch
         $url = "{$this->api}?" . http_build_query($this->query);
 
         $objList = json_decode(file_get_contents($url));
+
         $this->savePlaceToDB($objList->results, $type);
+
+
         while ($objList->next_page_token) {
-            sleep(15);
+            sleep(10);
             $this->query['pagetoken'] = $objList->next_page_token;
             $url = "{$this->api}?" . http_build_query($this->query);
-            $objList = $this->savePlaceToDB($url, $type);
-            if (!$objList->next_page_token) {
-                break;
-            }
+
+            $objList = json_decode(file_get_contents($url));
+            $this->savePlaceToDB($objList->results, $type);
+//            if (!$objList->next_page_token) {
+//                break;
+//            }
         }
     }
 }

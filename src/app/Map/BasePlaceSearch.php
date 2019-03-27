@@ -9,6 +9,7 @@
 namespace Map;
 
 use Models\Place;
+use PDOException;
 
 
 abstract class BasePlaceSearch
@@ -53,16 +54,22 @@ abstract class BasePlaceSearch
      */
     public function savePlaceToDB($result, $type)
     {
-        foreach ($result as $item) {
-            $place = new Place();
-            $place->place_id = $item->place_id;
-            $place->lat = $item->geometry->location->lat;
-            $place->lng = $item->geometry->location->lng;
-            $place->name = $item->name;
-            $place->address = $item->formatted_address;
-            $place->type = $type;
-            $place->save();
+        try {
+            foreach ($result as $item) {
+                $place = new Place();
+                $place->place_id = $item->place_id;
+                $place->lat = $item->geometry->location->lat;
+                $place->lng = $item->geometry->location->lng;
+                $place->name = $item->name;
+                $place->address = ($item->formatted_address) ? $item->formatted_address : $item->vicinity;
+                $place->type = $type;
+                $place->save();
+            }
+
+        } catch (PDOException $e) {
+            dd($e->getMessage());
         }
+
     }
 
     public function exportToJson()
@@ -70,25 +77,26 @@ abstract class BasePlaceSearch
         $all = Place::orderBy('type')->get();
 
         $typeName = [
-            'gas_station' => '加油站',
-            'bus_station' => '交通',
-            'train_station' => '交通',
-            'lodging' => '住宿歇腳',
-            'restaurant' => '餐飲',
-            'convenience_store' => '便利商店',
-            'toilet' => '廁所'
+            '加油站' => 'gas_station',
+            '交通' => ['bus_station', 'train_station'],
+            '住宿歇腳' => 'lodging',
+            '餐飲' => 'restaurant',
+            '廟宇' => 'temple',
+            '廁所' => 'toilet'
         ];
 
         $objs = [];
-        foreach ($typeName as $type) {
+        foreach ($typeName as $title => $type) {
             $obj = new \stdClass();
-            $obj->title = $type;
+            $obj->title = $title;
             $obj->item = [];
             $objs[] = $obj;
         }
+
         foreach ($all as $dbItem) {
             foreach ($objs as $obj) {
-                if ($obj->title == $typeName[$dbItem->type]) {
+                if ($typeName[$obj->title] == $dbItem->type ||
+                    in_array($dbItem->type, $typeName[$obj->title])) {
                     $newItem = new \stdClass();
                     $newItem->lat = $dbItem->lat;
                     $newItem->log = $dbItem->lng;

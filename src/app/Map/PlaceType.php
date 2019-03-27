@@ -12,11 +12,13 @@ class PlaceType extends BasePlaceSearch
 {
 
     private $location = '24.3452552,120.6230258';
+    private $radius = 700000;
 
     public function __construct()
     {
         parent::__construct();
-        $this->setType(['convenience_store', 'lodging', 'train_station', 'bus_station']);
+        $this->setType(['lodging', 'train_station', 'bus_station','gas_station','restaurant']);
+//        $this->setType(['convenience_store', 'lodging', 'train_station', 'bus_station','gas_station','restaurant']);
         $api = "https://maps.googleapis.com/maps/api/place/search/json";
 
 
@@ -28,10 +30,11 @@ class PlaceType extends BasePlaceSearch
 
         foreach ($this->types as $type) {
             $this->setQuery([
+                'location' => $this->location,
+                'radius' => $this->radius,
                 'language' => 'zh-tw',
                 "types" => $type,
-                "sensor" => false,
-                'locationbias' => "rectangle:120.3473598,24.345230|120.623608,23.5567862"
+                "sensor" => false
             ]);
             $this->retrieveData($type);
         }
@@ -47,15 +50,16 @@ class PlaceType extends BasePlaceSearch
         }
 
         $url = "{$this->api}?" . http_build_query($this->query);
-        dd($url);
         $objList = json_decode(file_get_contents($url));
-
         $this->savePlaceToDB($objList->results, $type);
+
         while ($objList->next_page_token) {
             sleep(5);
             $this->query['pagetoken'] = $objList->next_page_token;
             $url = "{$this->api}?" . http_build_query($this->query);
-            $objList = $this->savePlaceToDB($url, $type);
+            $objList = json_decode(file_get_contents($url));
+
+            $this->savePlaceToDB($objList->results, $type);
             if (!$objList->next_page_token) {
                 break;
             }
